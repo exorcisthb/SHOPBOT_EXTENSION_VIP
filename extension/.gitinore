@@ -1,0 +1,4 @@
+# File này chứa secret — KHÔNG commit lên GitHub
+# Thay vào đó commit background.template.js và để người dùng tự copy + điền
+.env
+background.js
