@@ -885,8 +885,10 @@
     addBotMsg('🗑️ Đã xóa tất cả. Bạn có thể thêm sản phẩm mới!');
   });
   document.getElementById('sb-btn-reload').addEventListener('click', () => {
-    chrome.storage.local.remove(['shopbot_chat'], () => chrome.runtime.reload());
-  });
+    chrome.storage.local.remove(['shopbot_chat'], () => {
+        chrome.runtime.sendMessage({ action: 'reload_extension' });
+    });
+});
 
   // ============================================================
   // STORAGE
