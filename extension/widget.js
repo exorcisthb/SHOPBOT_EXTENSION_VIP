@@ -511,9 +511,11 @@
           <div class="sb-settings-section">
             <div class="sb-settings-label">Model AI</div>
             <select class="sb-select" id="sb-model-select">
-              <option value="gemini-2.5-flash">Gemini 2.5 Flash (Nhanh)</option>
-              <option value="gemini-2.5-pro">Gemini 2.5 Pro (Mạnh hơn)</option>
-              <option value="gemini-2.0-flash">Gemini 2.0 Flash</option>
+              <option value="gemini-2.5-flash">⚡ Gemini 2.5 Flash</option>
+              <option value="gemini-2.5-flash">🧠 Gemini 2.5 Pro</option>
+              <option value="gemini-2.5-flash">🌟 Gemini 2.0 Flash</option>
+              <option value="gemini-2.5-flash">🔬 Gemma 3 12B</option>
+              <option value="gemini-2.5-flash">🚀 Gemma 3 27B</option>
             </select>
           </div>
           <div class="sb-settings-section">
