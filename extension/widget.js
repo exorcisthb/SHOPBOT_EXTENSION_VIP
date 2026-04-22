@@ -529,8 +529,8 @@
             <div class="sb-settings-label">Tương thích</div>
             <div class="sb-support-info">
               ✅ Shopee · Lazada · Tiki<br>
-              ✅ Amazon · eBay · AliExpress<br>
-              ✅ Taobao · Alibaba · Temu · Shein<br>
+              ✅ Amazon · eBay <br>
+              ✅ Taobao · Alibaba <br>
               ⚠️ Trang khác: chụp ảnh vẫn hoạt động<br>
               <span style="font-size:10px;color:var(--text3);line-height:1.7;display:block;margin-top:6px;">
                 ShopBot không liên kết hay được bảo lãnh bởi bất kỳ sàn thương mại nào. Extension hoạt động độc lập, chỉ đọc thông tin hiển thị công khai trên trình duyệt của bạn.
