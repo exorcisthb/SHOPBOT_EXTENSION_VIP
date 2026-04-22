@@ -511,10 +511,9 @@
           <div class="sb-settings-section">
             <div class="sb-settings-label">Model AI</div>
             <select class="sb-select" id="sb-model-select">
-              <option value="gemini-2.5-flash-preview-04-17">⚡ Gemini 2.5 Flash</option>
-              <option value="gemini-2.0-flash">🌟 Gemini 2.0 Flash</option>
-              <option value="gemma-3-27b-it">🚀 Gemma 3 27B</option>
-              <option value="gemma-3-12b-it">🔬 Gemma 3 12B</option>
+              <option value="gemini-2.5-flash">Gemini 2.5 Flash (Nhanh)</option>
+              <option value="gemini-2.5-pro">Gemini 2.5 Pro (Mạnh hơn)</option>
+              <option value="Gemma 3-12b-it">Gemma 3-12b-it</option>
             </select>
           </div>
           <div class="sb-settings-section">
@@ -529,12 +528,15 @@
             <div class="sb-settings-label">Tương thích</div>
             <div class="sb-support-info">
               ✅ Shopee · Lazada · Tiki<br>
-              ✅ Amazon · eBay <br>
-              ✅ Taobao · Alibaba <br>
-              ⚠️ Trang khác: chụp ảnh vẫn hoạt động<br>
-              <span style="font-size:10px;color:var(--text3);line-height:1.7;display:block;margin-top:6px;">
-                ShopBot không liên kết hay được bảo lãnh bởi bất kỳ sàn thương mại nào. Extension hoạt động độc lập, chỉ đọc thông tin hiển thị công khai trên trình duyệt của bạn.
-              </span>
+              ✅ Amazon · eBay · AliExpress<br>
+              ✅ Taobao · Alibaba · Temu · Shein<br>
+              ⚠️ Trang khác: chụp ảnh vẫn hoạt động
+            </div>
+          </div>
+          <div class="sb-settings-section">
+            <div class="sb-settings-label">⚠️ Lưu ý quan trọng</div>
+            <div style="background:rgba(248,113,113,0.08);border:1px solid rgba(248,113,113,0.25);border-radius:8px;padding:10px 12px;font-size:11.5px;color:#fca5a5;line-height:1.7;">
+              ShopBot <strong style="color:#f87171;">không</strong> liên kết hay được bảo lãnh bởi Shopee, Lazada, Tiki hay bất kỳ sàn nào. Extension hoạt động độc lập, chỉ đọc thông tin hiển thị công khai trên trình duyệt của bạn.
             </div>
           </div>
         </div>
@@ -835,7 +837,7 @@
       const parts = [];
       let ctx = '=== THÔNG TIN SẢN PHẨM ===\n';
       slots.forEach((s, i) => {
-        ctx += `\nSP${i+1}: ${s.name}\nSàn: ${s.platform}\nGiá: ${s.price||'Xem trong ảnh chụp màn hình'}\nĐánh giá: ${s.rating||'Xem trong ảnh chụp màn hình'}\nURL: ${s.url}\n`;
+        ctx += `\nSP${i+1}: ${s.name}\nSàn: ${s.platform}\nGiá: ${s.price||'N/A'}\nĐánh giá: ${s.rating||'N/A'}\nURL: ${s.url}\n`;
       });
       parts.push({ type: 'text', text: ctx });
 
