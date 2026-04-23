@@ -701,7 +701,7 @@
       await saveSlots();
       renderSlots();
       updateSlotCount();
-      addBotMsg(`✅ Đã lưu <strong>${slot.name.slice(0,40)}${slot.name.length>40?'...':''}</strong> (${slot.platform})<br>📦 Đã lưu ${slots.length}/5 sản phẩm${slots.length >= MAX_SLOTS ? ' — <span style="color:var(--yellow)">Đã đủ slot!</span>' : ` — còn trống ${MAX_SLOTS - slots.length} slot`}`);
+      addBotMsg(`✅ Đã lưu <strong>${slot.name.slice(0,40)}${slot.name.length>40?'...':''}</strong> (${slot.platform})<br>📦 Đã lưu ${slots.length}/${MAX_SLOTS} sản phẩm${slots.length >= MAX_SLOTS ? ' — <span style="color:var(--yellow)">Đã đủ slot!</span>' : ` — còn trống ${MAX_SLOTS - slots.length} slot`}`);
 
       const fabBadge = document.getElementById('sb-fab-badge');
       fabBadge.textContent = slots.length;
