@@ -842,7 +842,13 @@
       const parts = [];
       let ctx = '=== THÔNG TIN SẢN PHẨM ===\n';
       slots.forEach((s, i) => {
-        ctx += `\nSP${i+1}: ${s.name}\nSàn: ${s.platform}\nGiá: ${s.price||'N/A'}\nSố sao: ${s.rating||'N/A'}\nLượt đánh giá: ${s.reviewCount||'N/A'}\nĐã bán: ${s.sold||'N/A'}\n${s.variants||''}\nURL: ${s.url}\n`;
+        ctx += `\nSP${i+1}: ${s.name}\nSàn: ${s.platform}\n`;
+        if (s.price) ctx += `Giá: ${s.price}\n`;
+        if (s.rating) ctx += `Số sao: ${s.rating}\n`;
+        if (s.reviewCount) ctx += `Lượt đánh giá: ${s.reviewCount}\n`;
+        if (s.sold) ctx += `Đã bán: ${s.sold}\n`;
+        if (s.variants) ctx += `${s.variants}\n`;
+        ctx += `URL: ${s.url}\n`;
       });
       parts.push({ type: 'text', text: ctx });
 
