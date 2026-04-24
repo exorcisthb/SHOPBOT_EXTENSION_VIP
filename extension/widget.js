@@ -109,6 +109,25 @@
     .sb-btn-row {
       display: grid; grid-template-columns: 1fr 1fr; gap: 7px;
     }
+    /* Warning box — adapts per theme */
+    .sb-warning-box {
+      border-radius: 8px; padding: 10px 12px;
+      font-size: 11.5px; line-height: 1.7;
+      border: 1px solid rgba(248,113,113,0.25);
+      background: rgba(248,113,113,0.08);
+      color: #fca5a5;
+    }
+    .sb-warning-strong { color: #f87171; }
+    #shopbot-root[data-theme="bright"] .sb-warning-box,
+    #shopbot-root[data-theme="rose"]   .sb-warning-box {
+      background: rgba(220,38,38,0.07);
+      border-color: rgba(220,38,38,0.3);
+      color: #991b1b;
+    }
+    #shopbot-root[data-theme="bright"] .sb-warning-strong,
+    #shopbot-root[data-theme="rose"]   .sb-warning-strong {
+      color: #dc2626;
+    }
 
     /* ── FAB ── */
     #sb-fab {
@@ -651,8 +670,8 @@
           </div>
           <div class="sb-settings-section">
             <div class="sb-settings-label">⚠️ Lưu ý quan trọng</div>
-            <div style="background:rgba(248,113,113,0.08);border:1px solid rgba(248,113,113,0.25);border-radius:8px;padding:10px 12px;font-size:11.5px;color:#fca5a5;line-height:1.7;">
-              ShopBot <strong style="color:#f87171;">không</strong> liên kết hay được bảo lãnh bởi Shopee, Lazada, Tiki hay bất kỳ sàn nào. Extension hoạt động độc lập, chỉ đọc thông tin hiển thị công khai trên trình duyệt của bạn.
+            <div class="sb-warning-box">
+              ShopBot <strong class="sb-warning-strong">không</strong> liên kết hay được bảo lãnh bởi Shopee, Lazada, Tiki hay bất kỳ sàn nào. Extension hoạt động độc lập, chỉ đọc thông tin hiển thị công khai trên trình duyệt của bạn.
             </div>
           </div>
         </div>
