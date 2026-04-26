@@ -64,12 +64,18 @@
             <div class="sb-bubble">👋 Xin chào! Tôi là <strong>ShopBot</strong>.<br>Hãy chụp ít nhất 2 sản phẩm rồi hỏi tôi để so sánh nhé!</div>
           </div>
         </div>
-        <div class="sb-quick-btns">
-          <button class="sb-quick-btn" data-q="So sánh tất cả sản phẩm đã lưu">🆚 So sánh tất cả</button>
-          <button class="sb-quick-btn" data-q="Sản phẩm nào đáng mua nhất? Cho điểm từng cái">⭐ Chấm điểm</button>
-          <button class="sb-quick-btn" data-q="Cái nào giá tốt nhất so với chất lượng?">💰 Giá tốt nhất</button>
-          <button class="sb-quick-btn" data-q="Tóm tắt ưu nhược điểm từng sản phẩm">📋 Ưu/nhược điểm</button>
-        </div>
+<div class="sb-quick-btns">
+  <button class="sb-quick-btn" data-q="So sánh tất cả sản phẩm đã lưu">🆚 So sánh tất cả</button>
+  <button class="sb-quick-btn" data-q="Sản phẩm nào đáng mua nhất? Cho điểm từng cái">⭐ Chấm điểm</button>
+  <button class="sb-quick-btn" data-q="Cái nào giá tốt nhất so với chất lượng?">💰 Giá tốt nhất</button>
+  <button class="sb-quick-btn" data-q="Tóm tắt ưu nhược điểm từng sản phẩm">📋 Ưu/nhược điểm</button>
+  <button class="sb-quick-btn" data-q="Shop nào uy tín hơn? Phân tích độ tin cậy từng shop">🏪 Shop uy tín</button>
+  <button class="sb-quick-btn" data-q="Sản phẩm nào phù hợp mua làm quà tặng hơn? Giải thích lý do">🎁 Mua làm quà</button>
+  <button class="sb-quick-btn" data-q="Nếu dùng hàng ngày thì nên chọn cái nào? Tại sao?">💪 Dùng hàng ngày</button>
+  <button class="sb-quick-btn" data-q="Sản phẩm nào có rủi ro khi mua thấp hơn? Phân tích">⚠️ Rủi ro mua hàng</button>
+  <button class="sb-quick-btn" data-q="Tôi là người mới mua lần đầu, nên chọn cái nào và tại sao?">🔰 Người mới mua</button>
+  <button class="sb-quick-btn" data-q="Phân tích chi tiết lượt đánh giá và số sao của từng sản phẩm">📊 Phân tích review</button>
+</div>
         <div class="sb-input-area">
           <textarea class="sb-input" id="sb-input" placeholder="Hỏi về sản phẩm..." rows="1"></textarea>
           <button class="sb-send" id="sb-send">↑</button>
