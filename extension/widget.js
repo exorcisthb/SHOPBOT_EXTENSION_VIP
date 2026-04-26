@@ -542,33 +542,39 @@
 
     try {
       const parts = [];
-      let ctx = "=== THÔNG TIN SẢN PHẨM ===\n";
-      slots.forEach((s, i) => {
-        ctx += `\nSP${i + 1}: ${s.name}\nSàn: ${s.platform}\n`;
-        if (s.price) ctx += `Giá: ${s.price}\n`;
-        if (s.rating) ctx += `Số sao: ${s.rating}\n`;
-        if (s.reviewCount) ctx += `Lượt đánh giá: ${s.reviewCount}\n`;
-        if (s.sold) ctx += `Đã bán: ${s.sold}\n`;
-        if (s.variants) ctx += `${s.variants}\n`;
-        ctx += `URL: ${s.url}\n`;
-      });
-      parts.push({ type: "text", text: ctx });
+      parts.push({ type: "text", text: "=== THÔNG TIN SẢN PHẨM ===\n" });
+
+      for (let i = 0; i < slots.length; i++) {
+        const s = slots[i];
+        let spCtx = `\n[SẢN PHẨM ${i + 1}]\nTên: ${s.name}\nSàn: ${s.platform}\n`;
+        if (s.price) spCtx += `Giá: ${s.price}\n`;
+        if (s.rating) spCtx += `Số sao: ${s.rating}\n`;
+        if (s.reviewCount) spCtx += `Lượt đánh giá: ${s.reviewCount}\n`;
+        if (s.sold) spCtx += `Đã bán: ${s.sold}\n`;
+        if (s.variants) spCtx += `Phân loại: ${s.variants}\n`;
+        spCtx += `URL: ${s.url}\n(Ảnh chụp màn hình của SẢN PHẨM ${i + 1} ở ngay bên dưới)\n`;
+
+        parts.push({ type: "text", text: spCtx });
+
+        if (!window._sbImgSent && s.imageData?.startsWith("data:image")) {
+          const resized = await resizeImage(s.imageData, 1200);
+          const base64 = resized.split(",")[1];
+          const mime = resized.includes("jpeg") ? "image/jpeg" : "image/png";
+          parts.push({
+            type: "image",
+            source: { type: "base64", media_type: mime, data: base64 },
+          });
+        }
+      }
 
       if (!window._sbImgSent) {
-        for (const s of slots) {
-          if (s.imageData?.startsWith("data:image")) {
-            const resized = await resizeImage(s.imageData, 1200);
-            const base64 = resized.split(",")[1];
-            const mime = resized.includes("jpeg") ? "image/jpeg" : "image/png";
-            parts.push({
-              type: "image",
-              source: { type: "base64", media_type: mime, data: base64 },
-            });
-          }
-        }
         window._sbImgSent = true;
       }
-      parts.push({ type: "text", text });
+
+      parts.push({
+        type: "text",
+        text: `\n=== YÊU CẦU NGƯỜI DÙNG ===\n${text}`,
+      });
 
       const model = document.getElementById("sb-model-select").value;
 
