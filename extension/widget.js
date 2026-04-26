@@ -889,7 +889,7 @@
           <div class="sb-slot-name">${esc(s.name)}</div>
           <div class="sb-slot-meta">
             <span class="sb-badge ${getPlatformClass(s.platform)}" style="font-size:10px;padding:1px 5px">${s.platform}</span>
-            ${s.price ? `<span class="sb-slot-price" style="font-size:10px;word-break:break-all"> ${esc(s.price.slice(0,30))}</span>` : ''}
+            ${s.price ? `<span class="sb-slot-price" style="font-size:10px;word-break:break-all"> ${esc(s.price.slice(0, 30))}</span>` : ''}
           </div>
           <div class="sb-slot-meta" style="margin-top:2px;font-size:10px;color:var(--text3)">${s.capturedAt}</div>
         </div>
@@ -988,13 +988,15 @@
       parts.push({ type: 'text', text: ctx });
 
       if (!window._sbImgSent) {
-        slots.forEach(s => {
+        for (const s of slots) {
           if (s.imageData?.startsWith('data:image')) {
-            const base64 = s.imageData.split(',')[1];
-            const mime = s.imageData.includes('jpeg') ? 'image/jpeg' : 'image/png';
+            // Resize xuống max 1200px chiều rộng trước khi gửi
+            const resized = await resizeImage(s.imageData, 1200);
+            const base64 = resized.split(',')[1];
+            const mime = resized.includes('jpeg') ? 'image/jpeg' : 'image/png';
             parts.push({ type: 'image', source: { type: 'base64', media_type: mime, data: base64 } });
           }
-        });
+        }
         window._sbImgSent = true;
       }
       parts.push({ type: 'text', text });
@@ -1063,7 +1065,20 @@ QUAN TRỌNG: KHÔNG dùng markdown. Trả lời bằng tiếng Việt.`,
       document.getElementById('sb-send').disabled = false;
     }
   }
-
+  async function resizeImage(dataUrl, maxWidth) {
+    return new Promise(resolve => {
+      const img = new Image();
+      img.onload = () => {
+        const ratio = Math.min(1, maxWidth / img.width);
+        const canvas = document.createElement('canvas');
+        canvas.width = img.width * ratio;
+        canvas.height = img.height * ratio;
+        canvas.getContext('2d').drawImage(img, 0, 0, canvas.width, canvas.height);
+        resolve(canvas.toDataURL('image/jpeg', 0.7));
+      };
+      img.src = dataUrl;
+    });
+  } F
   function fmt(t) {
     return t.replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>').replace(/\n\n/g, '<br><br>').replace(/\n/g, '<br>');
   }
