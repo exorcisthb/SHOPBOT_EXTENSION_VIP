@@ -126,12 +126,14 @@
             </select>
           </div>
           <div class="sb-settings-section">
-            <div class="sb-settings-label">Dữ liệu</div>
-            <div class="sb-btn-row">
-              <button class="sb-btn-danger" id="sb-btn-clear">🗑️ Xóa sản phẩm</button>
-              <button class="sb-btn-danger" id="sb-btn-reload">🔄 Reset toàn bộ</button>
-            </div>
-          </div>
+  <div class="sb-settings-label">Dữ liệu</div>
+  <div class="sb-btn-row">
+    <button class="sb-btn-danger" id="sb-btn-clear">🗑️ Xóa sản phẩm</button>
+    <button class="sb-btn-danger" id="sb-btn-reload">🔄 Reset toàn bộ</button>
+  </div>
+  <button class="sb-btn-danger" id="sb-btn-new-chat">✨ Chat mới</button>
+<button class="sb-btn-danger" id="sb-btn-history">📋 Xem lịch sử</button>
+</div>
           <div class="sb-settings-section">
             <div class="sb-settings-label">Tương thích</div>
             <div class="sb-support-info">
@@ -652,5 +654,135 @@ QUAN TRỌNG: KHÔNG dùng markdown. Trả lời bằng tiếng Việt.`,
   // UTILS
   // ============================================================
   function esc(s) { return (s || '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;'); }
+// ============================================================
+// CHAT MỚI
+// ============================================================
+document.getElementById('sb-btn-new-chat').addEventListener('click', async () => {
+  if (chatHistory.length === 0) return;
+  // Lưu đoạn chat hiện tại vào lịch sử
+  const sessionName = slots.length > 0
+    ? `So sánh ${slots.map(s => s.name.split(' ').slice(0,2).join(' ')).join(' & ')}`
+    : `Chat ${new Date().toLocaleString('vi-VN')}`;
+  const session = {
+    id: Date.now(),
+    name: sessionName,
+    createdAt: new Date().toLocaleString('vi-VN'),
+    messages: [...chatHistory],
+    starred: false
+  };
+  const stored = await getHistory();
+  stored.unshift(session);
+  // Giữ tối đa 5
+  const trimmed = stored.slice(0, 5);
+  await saveHistory(trimmed);
+  // Reset chat hiện tại
+  chatHistory = []; saveChatHistory();
+  window._sbImgSent = false;
+  document.getElementById('sb-messages').innerHTML = '';
+  addBotMsg('✨ Đã lưu đoạn chat cũ! Bắt đầu so sánh mới nhé.');
+  document.querySelectorAll('.sb-tab')[1].click();
+});
 
+// ============================================================
+// LỊCH SỬ
+// ============================================================
+async function getHistory() {
+  return new Promise(r => chrome.storage.local.get(['shopbot_history'], res => r(res.shopbot_history || [])));
+}
+async function saveHistory(data) {
+  return new Promise(r => chrome.storage.local.set({ shopbot_history: data }, r));
+}
+
+document.getElementById('sb-btn-history').addEventListener('click', async () => {
+  const history = await getHistory();
+  showHistoryPanel(history);
+});
+
+function showHistoryPanel(history) {
+  // Xóa panel cũ nếu có
+  document.getElementById('sb-history-panel')?.remove();
+
+  const starred = history.filter(s => s.starred);
+  const normal = history.filter(s => !s.starred);
+
+  const hp = document.createElement('div');
+  hp.id = 'sb-history-panel';
+  hp.style.cssText = `
+    position:absolute; top:0; left:0; width:100%; height:100%;
+    background:var(--bg); z-index:10; display:flex; flex-direction:column;
+    transform:translateX(100%); transition:transform 0.3s cubic-bezier(.34,1.56,.64,1);
+  `;
+
+  hp.innerHTML = `
+    <div style="display:flex;align-items:center;gap:8px;padding:12px 14px;border-bottom:1px solid var(--border);background:var(--bg2);flex-shrink:0">
+      <button id="sb-history-back" style="background:transparent;border:1px solid var(--border);border-radius:7px;width:28px;height:28px;cursor:pointer;color:var(--text2);font-size:15px;display:flex;align-items:center;justify-content:center">←</button>
+      <span style="font-weight:600;font-size:13px;color:var(--text)">📋 Lịch sử chat</span>
+    </div>
+    <div style="flex:1;overflow-y:auto;padding:10px 14px">
+      ${normal.length === 0 && starred.length === 0 ? `<div style="text-align:center;padding:28px 0;color:var(--text3);font-size:12px">Chưa có lịch sử nào.<br>Bấm "Chat mới" để lưu đoạn chat!</div>` : ''}
+      ${normal.map(s => historyCard(s)).join('')}
+      ${starred.length > 0 ? `
+        <div style="font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:0.5px;margin:10px 0 6px">⭐ Yêu thích (${starred.length}/3)</div>
+        ${starred.map(s => historyCard(s, true)).join('')}
+      ` : `
+        <div style="font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:0.5px;margin:10px 0 6px">⭐ Yêu thích (0/3)</div>
+        <div style="text-align:center;padding:12px 0;color:var(--text3);font-size:11px">Nhấn ⭐ trên đoạn chat để thêm vào đây</div>
+      `}
+    </div>
+  `;
+
+  panel.style.position = 'relative';
+  panel.appendChild(hp);
+  requestAnimationFrame(() => { hp.classList.add('sb-panel-open'); });
+
+  hp.querySelector('#sb-history-back').addEventListener('click', () => {
+   hp.classList.remove('sb-panel-open');
+setTimeout(() => { hp.remove(); panel.style.position = ''; }, 300);
+  });
+
+  // Gắn sự kiện cho các nút
+  hp.querySelectorAll('[data-star]').forEach(btn => {
+    btn.addEventListener('click', async (e) => {
+      e.stopPropagation();
+      const id = parseInt(btn.dataset.star);
+      const h = await getHistory();
+      const item = h.find(x => x.id === id);
+      if (!item) return;
+      const starredCount = h.filter(x => x.starred && x.id !== id).length;
+      if (!item.starred && starredCount >= 3) {
+        alert('Chỉ lưu tối đa 3 yêu thích! Xóa bớt trước nhé.');
+        return;
+      }
+      item.starred = !item.starred;
+      await saveHistory(h);
+      showHistoryPanel(h);
+    });
+  });
+
+  hp.querySelectorAll('[data-delete]').forEach(btn => {
+    btn.addEventListener('click', async (e) => {
+      e.stopPropagation();
+      const id = parseInt(btn.dataset.delete);
+      const h = await getHistory();
+      const filtered = h.filter(x => x.id !== id);
+      await saveHistory(filtered);
+      showHistoryPanel(filtered);
+    });
+  });
+}
+
+function historyCard(s) {
+  return `
+    <div class="sb-history-card">
+      <div class="sb-history-card-top">
+        <div class="sb-history-card-name">${s.name}</div>
+        <div class="sb-history-card-actions">
+          <button data-star="${s.id}" class="sb-history-btn star ${s.starred ? 'active' : ''}">${s.starred ? '⭐' : '☆'}</button>
+          <button data-delete="${s.id}" class="sb-history-btn del">✕</button>
+        </div>
+      </div>
+      <div class="sb-history-card-meta">${s.createdAt} · ${s.messages.length} tin nhắn</div>
+    </div>
+  `;
+}
 })();
