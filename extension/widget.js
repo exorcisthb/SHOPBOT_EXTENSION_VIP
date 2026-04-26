@@ -67,16 +67,19 @@
             <div class="sb-bubble">👋 Xin chào! Tôi là <strong>ShopBot</strong>.<br>Hãy chụp ít nhất 2 sản phẩm rồi hỏi tôi để so sánh nhé!</div>
           </div>
         </div>
-<div class="sb-quick-btns">
-  <button class="sb-quick-btn" data-q="So sánh tất cả sản phẩm đã lưu">🆚 So sánh tất cả</button>
-  <button class="sb-quick-btn" data-q="Sản phẩm nào đáng mua nhất? Cho điểm từng cái">⭐ Chấm điểm</button>
-  <button class="sb-quick-btn" data-q="Cái nào giá tốt nhất so với chất lượng?">💰 Giá tốt nhất</button>
-  <button class="sb-quick-btn" data-q="Tóm tắt ưu nhược điểm từng sản phẩm">📋 Ưu/nhược điểm</button>
-  <button class="sb-quick-btn" data-q="Shop nào uy tín hơn? Phân tích độ tin cậy từng shop">🏪 Shop uy tín</button>
-  <button class="sb-quick-btn" data-q="Sản phẩm nào phù hợp mua làm quà tặng hơn? Giải thích lý do">🎁 Mua làm quà</button>
-  <button class="sb-quick-btn" data-q="Nếu dùng hàng ngày thì nên chọn cái nào? Tại sao?">💪 Dùng hàng ngày</button>
-  <button class="sb-quick-btn" data-q="Sản phẩm nào có rủi ro khi mua thấp hơn? Phân tích">⚠️ Rủi ro mua hàng</button>
-  <button class="sb-quick-btn" data-q="Phân tích chi tiết lượt đánh giá và số sao của từng sản phẩm">📊 Phân tích review</button>
+<div class="sb-quick-menu" id="sb-quick-menu">
+  <button class="sb-quick-trigger" id="sb-quick-trigger">⚡ Gợi ý câu hỏi <span class="sb-quick-arrow">▾</span></button>
+  <div class="sb-quick-dropdown" id="sb-quick-dropdown">
+    <button class="sb-quick-item" data-q="So sánh tất cả sản phẩm đã lưu"><span>🆚</span> So sánh tất cả</button>
+    <button class="sb-quick-item" data-q="Sản phẩm nào đáng mua nhất? Cho điểm từng cái"><span>⭐</span> Chấm điểm từng sản phẩm</button>
+    <button class="sb-quick-item" data-q="Cái nào giá tốt nhất so với chất lượng?"><span>💰</span> Giá tốt nhất</button>
+    <button class="sb-quick-item" data-q="Tóm tắt ưu nhược điểm từng sản phẩm"><span>📋</span> Ưu / nhược điểm</button>
+    <button class="sb-quick-item" data-q="Shop nào uy tín hơn? Phân tích độ tin cậy từng shop"><span>🏪</span> Shop uy tín</button>
+    <button class="sb-quick-item" data-q="Sản phẩm nào phù hợp mua làm quà tặng hơn? Giải thích lý do"><span>🎁</span> Mua làm quà</button>
+    <button class="sb-quick-item" data-q="Nếu dùng hàng ngày thì nên chọn cái nào? Tại sao?"><span>💪</span> Dùng hàng ngày</button>
+    <button class="sb-quick-item" data-q="Sản phẩm nào có rủi ro khi mua thấp hơn? Phân tích"><span>⚠️</span> Rủi ro mua hàng</button>
+    <button class="sb-quick-item" data-q="Phân tích chi tiết lượt đánh giá và số sao của từng sản phẩm"><span>📊</span> Phân tích review</button>
+  </div>
 </div>
         <div class="sb-input-area">
           <textarea class="sb-input" id="sb-input" placeholder="Hỏi về sản phẩm..." rows="1"></textarea>
@@ -423,7 +426,24 @@
     this.style.height = 'auto';
     this.style.height = Math.min(this.scrollHeight, 80) + 'px';
   });
-  document.querySelectorAll('.sb-quick-btn').forEach(btn => {
+  // Quick menu trigger
+  const quickTrigger = document.getElementById('sb-quick-trigger');
+  const quickDropdown = document.getElementById('sb-quick-dropdown');
+  if (quickTrigger && quickDropdown) {
+    quickTrigger.addEventListener('click', (e) => {
+      e.stopPropagation();
+      const isOpen = quickDropdown.classList.toggle('open');
+      quickTrigger.querySelector('.sb-quick-arrow').textContent = isOpen ? '\u25b4' : '\u25be';
+    });
+    // Click ngoài thì đóng
+    document.addEventListener('click', () => {
+      quickDropdown.classList.remove('open');
+      const arrow = quickTrigger.querySelector('.sb-quick-arrow');
+      if (arrow) arrow.textContent = '\u25be';
+    });
+  }
+
+  document.querySelectorAll('.sb-quick-item').forEach(btn => {
     btn.addEventListener('click', () => {
       document.getElementById('sb-input').value = btn.dataset.q;
       document.querySelectorAll('.sb-tab')[1].click();
