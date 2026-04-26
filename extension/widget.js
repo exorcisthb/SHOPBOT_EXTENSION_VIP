@@ -660,28 +660,29 @@ QUAN TRỌNG: KHÔNG dùng markdown. Trả lời bằng tiếng Việt.`,
 // CHAT MỚI
 // ============================================================
 document.getElementById('sb-btn-new-chat').addEventListener('click', async () => {
-  if (chatHistory.length === 0) return;
-  // Lưu đoạn chat hiện tại vào lịch sử
-  const sessionName = slots.length > 0
-    ? `So sánh ${slots.map(s => s.name.split(' ').slice(0,2).join(' ')).join(' & ')}`
-    : `Chat ${new Date().toLocaleString('vi-VN')}`;
-  const session = {
-    id: Date.now(),
-    name: sessionName,
-    createdAt: new Date().toLocaleString('vi-VN'),
-    messages: [...chatHistory],
-    starred: false
-  };
-  const stored = await getHistory();
-  stored.unshift(session);
-  // Giữ tối đa 5
-  const trimmed = stored.slice(0, 5);
-  await saveHistory(trimmed);
+  // Lưu đoạn chat hiện tại vào lịch sử (chỉ khi có tin nhắn thực)
+  if (chatHistory.length > 0) {
+    const sessionName = slots.length > 0
+      ? `So sánh ${slots.map(s => s.name.split(' ').slice(0,2).join(' ')).join(' & ')}`
+      : `Chat ${new Date().toLocaleString('vi-VN')}`;
+    const session = {
+      id: Date.now(),
+      name: sessionName,
+      createdAt: new Date().toLocaleString('vi-VN'),
+      messages: [...chatHistory],
+      starred: false
+    };
+    const stored = await getHistory();
+    stored.unshift(session);
+    // Giữ tối đa 5
+    const trimmed = stored.slice(0, 5);
+    await saveHistory(trimmed);
+  }
   // Reset chat hiện tại
   chatHistory = []; saveChatHistory();
   window._sbImgSent = false;
   document.getElementById('sb-messages').innerHTML = '';
-  addBotMsg('✨ Đã lưu đoạn chat cũ! Bắt đầu so sánh mới nhé.');
+  addBotMsg('👋 Xin chào! Tôi là <strong>ShopBot</strong>.<br>Hãy chụp ít nhất 2 sản phẩm rồi hỏi tôi để so sánh nhé!');
   document.querySelectorAll('.sb-tab')[1].click();
 });
 
