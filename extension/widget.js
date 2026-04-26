@@ -889,7 +889,7 @@
           <div class="sb-slot-name">${esc(s.name)}</div>
           <div class="sb-slot-meta">
             <span class="sb-badge ${getPlatformClass(s.platform)}" style="font-size:10px;padding:1px 5px">${s.platform}</span>
-            ${s.price ? `<span class="sb-slot-price"> ${esc(s.price.slice(0, 20))}</span>` : ''}
+            ${s.price ? `<span class="sb-slot-price" style="font-size:10px;word-break:break-all"> ${esc(s.price.slice(0,30))}</span>` : ''}
           </div>
           <div class="sb-slot-meta" style="margin-top:2px;font-size:10px;color:var(--text3)">${s.capturedAt}</div>
         </div>
