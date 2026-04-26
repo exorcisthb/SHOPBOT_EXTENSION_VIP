@@ -188,6 +188,15 @@ function extractProductInfo() {
       '[class*="attribute"]',
       '[class*="swatch"]',
     ],
+    shopName: [
+      ".fV3TIn",
+      ".VlDGOl",
+      '[class*="shop-name"]',
+      '[class*="shopName"]',
+      '[class*="seller-name"]',
+      '[class*="sellerName"]',
+      ".pdp-shop-name",
+    ],
   };
 
   function trySelectors(list, maxLen = 50) {
@@ -313,6 +322,7 @@ function extractProductInfo() {
     rating: trySelectors(selectors.rating),
     reviewCount,
     sold: trySelectors(selectors.sold),
+    shopName: trySelectors(selectors.shopName),
     variants: extractVariants(),
     capturedAt: new Date().toLocaleString("vi-VN"),
   };

@@ -551,6 +551,7 @@
         if (s.rating) spCtx += `Số sao: ${s.rating}\n`;
         if (s.reviewCount) spCtx += `Lượt đánh giá: ${s.reviewCount}\n`;
         if (s.sold) spCtx += `Đã bán: ${s.sold}\n`;
+        if (s.shopName) spCtx += `Shop: ${s.shopName}\n`;
         if (s.variants) spCtx += `Phân loại: ${s.variants}\n`;
         spCtx += `URL: ${s.url}\n(Ảnh chụp màn hình của SẢN PHẨM ${i + 1} ở ngay bên dưới)\n`;
 
