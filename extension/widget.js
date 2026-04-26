@@ -591,7 +591,7 @@ BƯỚC 1 - Phân tích TỪNG sản phẩm:
 💰 Giá: [giá]
 ⭐ Đánh giá: [sao] ([lượt])
 📦 Đã bán: [số lượng]
-🏪 Shop: [tên + Mall/thường]
+🏪 Shop: [tên shop lấy từ ảnh (TUYỆT ĐỐI KHÔNG LẤY SỐ ID TỪ URL) + Mall/thường]
 ✅ Ưu điểm: [ít nhất 3 điểm]
 ❌ Nhược điểm: [ít nhất 2 điểm]
 
