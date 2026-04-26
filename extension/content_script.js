@@ -89,10 +89,7 @@ function extractProductInfo() {
       '[class*="stars"]',
       '[class*="rating"]', '[class*="Rating"]', '[class*="star"]'
     ],
-   reviewCount: [
-  'button.e2p50f:has(.x1i_He) .F9RHbS',
-  'button[class*="e2p50f"]:has([class*="x1i_He"]) .F9RHbS',
-],
+   reviewCount: [],
     sold: [
       '[class*="sold"]', '[class*="Sold"]',
       '[class*="historical_sold"]',
@@ -173,7 +170,20 @@ function extractProductInfo() {
     return '';
   }
 
-  const reviewCount = trySelectors(selectors.reviewCount, 30);
+  function extractReviewCount() {
+    const buttons = document.querySelectorAll('button');
+    for (const btn of buttons) {
+      if (btn.innerText.includes('đánh giá') || btn.innerText.includes('Đánh giá')) {
+        const numEl = btn.querySelector('.F9RHbS');
+        if (numEl) {
+          const text = numEl.innerText.trim();
+          if (text && text.length < 20) return text;
+        }
+      }
+    }
+    return '';
+  }
+  const reviewCount = extractReviewCount();
 
   return {
     platform,
