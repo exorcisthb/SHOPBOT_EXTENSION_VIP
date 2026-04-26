@@ -58,6 +58,9 @@
 
       <!-- Chat View -->
       <div class="sb-view" id="sb-view-chat">
+        <div class="sb-chat-topbar">
+          <button class="sb-btn-new-chat-inline" id="sb-btn-new-chat">✨ Chat mới</button>
+        </div>
         <div class="sb-messages" id="sb-messages">
           <div class="sb-msg bot">
             <div class="sb-avatar bot">S</div>
@@ -128,11 +131,10 @@
           <div class="sb-settings-section">
   <div class="sb-settings-label">Dữ liệu</div>
   <div class="sb-btn-row">
-    <button class="sb-btn-danger" id="sb-btn-clear">🗑️ Xóa sản phẩm</button>
-    <button class="sb-btn-danger" id="sb-btn-reload">🔄 Reset toàn bộ</button>
+    <button class="sb-btn-danger" id="sb-btn-history">📋 Lịch sử</button>
+    <button class="sb-btn-danger" id="sb-btn-clear">🗑️ Xóa SP</button>
+    <button class="sb-btn-danger" id="sb-btn-reload">🔄 Reset</button>
   </div>
-  <button class="sb-btn-danger" id="sb-btn-new-chat">✨ Chat mới</button>
-<button class="sb-btn-danger" id="sb-btn-history">📋 Xem lịch sử</button>
 </div>
           <div class="sb-settings-section">
             <div class="sb-settings-label">Tương thích</div>
@@ -700,44 +702,45 @@ document.getElementById('sb-btn-history').addEventListener('click', async () => 
 
 function showHistoryPanel(history) {
   // Xóa panel cũ nếu có
-  document.getElementById('sb-history-panel')?.remove();
+  const existing = document.getElementById('sb-history-panel');
+  if (existing) existing.remove();
 
   const starred = history.filter(s => s.starred);
   const normal = history.filter(s => !s.starred);
 
   const hp = document.createElement('div');
   hp.id = 'sb-history-panel';
-  hp.style.cssText = `
-    position:absolute; top:0; left:0; width:100%; height:100%;
-    background:var(--bg); z-index:10; display:flex; flex-direction:column;
-    transform:translateX(100%); transition:transform 0.3s cubic-bezier(.34,1.56,.64,1);
-  `;
 
   hp.innerHTML = `
-    <div style="display:flex;align-items:center;gap:8px;padding:12px 14px;border-bottom:1px solid var(--border);background:var(--bg2);flex-shrink:0">
-      <button id="sb-history-back" style="background:transparent;border:1px solid var(--border);border-radius:7px;width:28px;height:28px;cursor:pointer;color:var(--text2);font-size:15px;display:flex;align-items:center;justify-content:center">←</button>
-      <span style="font-weight:600;font-size:13px;color:var(--text)">📋 Lịch sử chat</span>
+    <div class="sb-history-header">
+      <button id="sb-history-back" class="sb-history-back">←</button>
+      <span class="sb-history-title">📋 Lịch sử chat</span>
     </div>
-    <div style="flex:1;overflow-y:auto;padding:10px 14px">
-      ${normal.length === 0 && starred.length === 0 ? `<div style="text-align:center;padding:28px 0;color:var(--text3);font-size:12px">Chưa có lịch sử nào.<br>Bấm "Chat mới" để lưu đoạn chat!</div>` : ''}
+    <div class="sb-history-body">
+      ${normal.length === 0 && starred.length === 0 ? `<div class="sb-history-empty"><div class="sb-history-empty-icon">📭</div>Chưa có lịch sử nào.<br>Bấm "Chat mới" để lưu đoạn chat!</div>` : ''}
       ${normal.map(s => historyCard(s)).join('')}
       ${starred.length > 0 ? `
-        <div style="font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:0.5px;margin:10px 0 6px">⭐ Yêu thích (${starred.length}/3)</div>
+        <div class="sb-history-section-label">⭐ Yêu thích (${starred.length}/3)</div>
         ${starred.map(s => historyCard(s, true)).join('')}
       ` : `
-        <div style="font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:0.5px;margin:10px 0 6px">⭐ Yêu thích (0/3)</div>
+        <div class="sb-history-section-label">⭐ Yêu thích (0/3)</div>
         <div style="text-align:center;padding:12px 0;color:var(--text3);font-size:11px">Nhấn ⭐ trên đoạn chat để thêm vào đây</div>
       `}
     </div>
   `;
 
-  panel.style.position = 'relative';
   panel.appendChild(hp);
-  requestAnimationFrame(() => { hp.classList.add('sb-panel-open'); });
+  // Force reflow before adding class so the transition triggers
+  hp.offsetHeight;
+  requestAnimationFrame(() => {
+    requestAnimationFrame(() => {
+      hp.classList.add('sb-panel-open');
+    });
+  });
 
   hp.querySelector('#sb-history-back').addEventListener('click', () => {
-   hp.classList.remove('sb-panel-open');
-setTimeout(() => { hp.remove(); panel.style.position = ''; }, 300);
+    hp.classList.remove('sb-panel-open');
+    setTimeout(() => { hp.remove(); }, 350);
   });
 
   // Gắn sự kiện cho các nút

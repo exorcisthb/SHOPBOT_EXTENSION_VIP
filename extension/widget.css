@@ -106,11 +106,11 @@
 .sb-theme-desc { display: none; }
 .sb-theme-check { font-size: 11px; color: var(--accent); opacity: 0; transition: opacity 0.15s; flex-shrink: 0; }
 
-/* 2-col danger buttons */
+/* ── 3-col danger button row ── */
 .sb-btn-row {
   display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 7px;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 6px;
 }
 
 /* Warning box */
@@ -215,6 +215,7 @@
   box-shadow: var(--shadow, 0 32px 80px rgba(0,0,0,0.7), 0 0 0 1px rgba(124,106,247,0.1));
   display: flex;
   flex-direction: column;
+  /* KHÔNG dùng overflow:hidden ở đây để history panel slide được */
   overflow: hidden;
   z-index: 2147483645;
   transform: scale(0.88) translateY(16px);
@@ -537,8 +538,36 @@
 .sb-dot:nth-child(3) { animation-delay: 0.4s; }
 @keyframes sbdot { 0%,80%,100%{opacity:0.3} 40%{opacity:1} }
 
+/* ── Chat topbar (nút Chat mới nằm trên quick buttons) ── */
+.sb-chat-topbar {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  padding: 6px 14px 2px;
+  flex-shrink: 0;
+}
+.sb-btn-new-chat-inline {
+  background: transparent;
+  border: 1px solid rgba(124,106,247,0.3);
+  border-radius: 8px;
+  padding: 4px 11px;
+  color: var(--accent);
+  font-size: 11px;
+  font-weight: 500;
+  cursor: pointer;
+  font-family: 'Inter', sans-serif;
+  transition: all 0.15s;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+.sb-btn-new-chat-inline:hover {
+  background: rgba(124,106,247,0.08);
+  border-color: var(--accent);
+}
+
 .sb-quick-btns {
-  padding: 8px 14px 0;
+  padding: 6px 14px 0;
   display: grid;
   grid-template-columns: 1fr 1fr 1fr;
   gap: 5px;
@@ -662,6 +691,12 @@
   line-height: 1.7;
 }
 
+/* ── Settings: Dữ liệu buttons ── */
+/* sb-btn-new-chat is now in chat topbar, not settings */
+#sb-btn-new-chat {
+  /* This id is now used for the inline chat topbar button */
+}
+
 /* ── Preview overlay ── */
 #sb-preview {
   position: fixed;
@@ -698,6 +733,9 @@
 #shopbot-root ::-webkit-scrollbar-thumb { background: var(--bg3); border-radius: 2px; }
 
 /* ── History Panel ── */
+/* Panel cần position:relative để history có thể absolute bên trong */
+/* History Panel */
+
 #sb-history-panel {
   position: absolute;
   top: 0;
@@ -705,13 +743,15 @@
   width: 100%;
   height: 100%;
   background: var(--bg);
-  z-index: 10;
+  z-index: 20;
   display: flex;
   flex-direction: column;
   transform: translateX(100%);
   transition: transform 0.3s cubic-bezier(.34,1.56,.64,1);
   border-radius: 18px;
   overflow: hidden;
+  /* Shadow để panel nổi bật khi slide vào */
+  box-shadow: -12px 0 40px rgba(0,0,0,0.2);
 }
 #sb-history-panel.sb-panel-open {
   transform: translateX(0);
@@ -848,25 +888,4 @@
   border-color: var(--red);
   color: var(--red);
   background: rgba(248,113,113,0.08);
-}
-
-/* ── "Chat mới" button accent override ── */
-#sb-btn-new-chat {
-  border-color: rgba(124,106,247,0.28);
-  color: var(--accent);
-  margin-top: 7px;
-}
-#sb-btn-new-chat:hover {
-  background: rgba(124,106,247,0.08);
-}
-#sb-btn-history {
-  border-color: rgba(167,139,250,0.28);
-  color: #a78bfa;
-  margin-top: 7px;
-}
-#sb-btn-history:hover {
-  background: rgba(167,139,250,0.08);
-}
-#sb-btn-new-chat, #sb-btn-history {
-  width: 100%;
 }
