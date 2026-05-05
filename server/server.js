@@ -83,7 +83,10 @@ app.post('/api/chat', authMiddleware, rateLimitMiddleware, async (req, res) => {
         return res.status(500).json({ error: 'Server chÆ°a cáº¥u hÃ¬nh OPENROUTER_API_KEY' });
       }
 
-      // Chuyá»ƒn Ä‘á»•i format sang OpenRouter (OpenAI vision format)
+      const openRouterVisionModels = new Set([]);
+      const supportsOpenRouterImages = openRouterVisionModels.has(targetModel);
+
+      // Chuyá»ƒn Ä‘á»•i format sang OpenRouter. Qwen/GPT-OSS hiá»‡n lÃ  text-only nÃªn bá» qua áº£nh.
       const openRouterMessages = [{ role: 'system', content: system || '' }];
 
       for (const msg of messages) {
@@ -91,9 +94,9 @@ app.post('/api/chat', authMiddleware, rateLimitMiddleware, async (req, res) => {
         if (typeof msg.content === 'string') {
           content = msg.content;
         } else if (Array.isArray(msg.content)) {
-          content = msg.content.map(item => {
+          const converted = msg.content.map(item => {
             if (item.type === 'text') return { type: 'text', text: item.text };
-            if (item.type === 'image' && item.source?.type === 'base64') {
+            if (supportsOpenRouterImages && item.type === 'image' && item.source?.type === 'base64') {
               return {
                 type: 'image_url',
                 image_url: {
@@ -103,6 +106,10 @@ app.post('/api/chat', authMiddleware, rateLimitMiddleware, async (req, res) => {
             }
             return null;
           }).filter(Boolean);
+
+          content = supportsOpenRouterImages
+            ? converted
+            : converted.map(item => item.text).filter(Boolean).join('\n\n');
         }
         openRouterMessages.push({ role: msg.role, content });
       }
