@@ -28,15 +28,28 @@ chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
     });
     return true;
   }
+if (msg.action === 'inject_and_capture') {
+  const tabId = msg.tabId || sender.tab?.id;
+  if (!tabId) { sendResponse({ error: 'Không tìm được tabId' }); return true; }
 
-  if (msg.action === 'inject_and_capture') {
-    const tabId = msg.tabId || sender.tab?.id;
-    setTimeout(() => {
-      chrome.tabs.sendMessage(tabId, { action: 'capture_page' }, res => sendResponse(res));
-    }, 200);
-    return true;
-  }
-
+  chrome.tabs.sendMessage(tabId, { action: 'capture_page' }, (res) => {
+    if (chrome.runtime.lastError) {
+      chrome.scripting.executeScript(
+        { target: { tabId }, files: ['content_script.js'] },
+        () => {
+          setTimeout(() => {
+            chrome.tabs.sendMessage(tabId, { action: 'capture_page' }, (res2) => {
+              sendResponse(res2 || { error: 'Capture thất bại sau inject' });
+            });
+          }, 800);
+        }
+      );
+    } else {
+      sendResponse(res);
+    }
+  });
+  return true;
+}
   if (msg.action === 'reload_extension') {
     // Gửi lệnh reset UI về tất cả các tab đang chạy widget trước
     chrome.tabs.query({}, (tabs) => {
@@ -69,19 +82,38 @@ chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
   }
 });
 
-async function callAPI(payload) {
-  const response = await fetch(`${PROXY_URL}/api/chat`, {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      'x-extension-secret': EXTENSION_SECRET
-    },
-    body: JSON.stringify(payload)
-  });
+async function callAPI(payload, retryCount = 0) {
+  try {
+    console.log('[ShopBot] calling model:', payload?.model);
+    const response = await fetch(`${PROXY_URL}/api/chat`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'x-extension-secret': EXTENSION_SECRET
+      },
+      body: JSON.stringify(payload)
+    });
 
-  if (!response.ok) {
-    const err = await response.json().catch(() => ({}));
-    throw new Error(err?.error || `Server lỗi ${response.status}`);
+    if (!response.ok) {
+      const err = await response.json().catch(() => ({}));
+      const errorMsg = err?.error || `Server lỗi ${response.status}`;
+      
+      // Nếu là lỗi "High Demand" hoặc server quá tải, thử lại ở mức background
+      if (retryCount < 2 && (errorMsg.toLowerCase().includes("demand") || response.status === 429 || response.status >= 500)) {
+        const waitMs = (retryCount + 1) * 2000;
+        await new Promise(r => setTimeout(r, waitMs));
+        return callAPI(payload, retryCount + 1);
+      }
+      throw new Error(errorMsg);
+    }
+    return await response.json();
+  } catch (err) {
+    // Xử lý lỗi "Failed to fetch" (thường do mạng hoặc proxy ngủ gật)
+    if (retryCount < 2 && (err.message.includes("Failed to fetch") || err.message.includes("NetworkError"))) {
+      const waitMs = (retryCount + 1) * 2000;
+      await new Promise(r => setTimeout(r, waitMs));
+      return callAPI(payload, retryCount + 1);
+    }
+    throw err;
   }
-  return await response.json();
 }

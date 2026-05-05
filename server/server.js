@@ -1,4 +1,4 @@
-// server.js - Backend proxy cho ShopBot Extension
+﻿// server.js - Backend proxy cho ShopBot Extension
 
 const express = require('express');
 const cors = require('cors');
@@ -10,7 +10,7 @@ const PORT = process.env.PORT || 3000;
 app.use(express.json({ limit: '50mb' }));
 app.use(cors({ origin: '*', methods: ['POST', 'GET'] }));
 
-// Xác thực extension secret
+// XÃ¡c thá»±c extension secret
 function authMiddleware(req, res, next) {
   const token = req.headers['x-extension-secret'];
   if (!token || token !== process.env.EXTENSION_SECRET) {
@@ -19,7 +19,7 @@ function authMiddleware(req, res, next) {
   next();
 }
 
-// Rate limiting đơn giản
+// Rate limiting Ä‘Æ¡n giáº£n
 const rateLimit = new Map();
 const RATE_LIMIT = 30;
 const RATE_WINDOW = 60000;
@@ -33,7 +33,7 @@ function rateLimitMiddleware(req, res, next) {
     return next();
   }
   if (entry.count >= RATE_LIMIT) {
-    return res.status(429).json({ error: 'Quá nhiều request, thử lại sau 1 phút.' });
+    return res.status(429).json({ error: 'QuÃ¡ nhiá»u request, thá»­ láº¡i sau 1 phÃºt.' });
   }
   entry.count++;
   next();
@@ -44,22 +44,106 @@ app.get('/health', (req, res) => {
   res.json({ ok: true, service: 'ShopBot Proxy' });
 });
 
-// Proxy gọi Gemini API
+// Proxy gá»i AI API (Há»— trá»£ cáº£ Gemini vÃ  OpenRouter)
 app.post('/api/chat', authMiddleware, rateLimitMiddleware, async (req, res) => {
   try {
     const { system, messages, model } = req.body;
-    const geminiModel = model || 'gemini-2.0-flash';
+    let targetModel = String(model || 'gemini-2.5-flash').trim();
+
+    if (targetModel === 'auto') {
+      targetModel = 'gemini-2.5-flash';
+    }
+
+    if (targetModel === 'qwen/qwen3-coder-480b-a35b-instruct:free') {
+      targetModel = 'qwen/qwen3-coder:free';
+    }
+
+    const geminiModels = new Set([
+      'gemini-2.5-flash',
+      'gemini-3-flash-preview',
+      'gemma-3-12b-it',
+      'gemma-3-27b-it'
+    ]);
+
+    const openRouterModels = new Set([
+      'qwen/qwen3-coder:free',
+      'openai/gpt-oss-120b:free'
+    ]);
 
     if (!messages || !Array.isArray(messages)) {
-      return res.status(400).json({ error: 'Thiếu messages' });
+      return res.status(400).json({ error: 'Thiáº¿u messages' });
     }
 
+    console.log('[ShopBot API] model:', targetModel, 'provider:', openRouterModels.has(targetModel) ? 'openrouter' : 'gemini');
+
+    // --- Xá»¬ LÃ OPENROUTER ---
+    if (openRouterModels.has(targetModel)) {
+      const openRouterApiKey = process.env.OPENROUTER_API_KEY;
+      if (!openRouterApiKey) {
+        return res.status(500).json({ error: 'Server chÆ°a cáº¥u hÃ¬nh OPENROUTER_API_KEY' });
+      }
+
+      // Chuyá»ƒn Ä‘á»•i format sang OpenRouter (OpenAI vision format)
+      const openRouterMessages = [{ role: 'system', content: system || '' }];
+
+      for (const msg of messages) {
+        let content;
+        if (typeof msg.content === 'string') {
+          content = msg.content;
+        } else if (Array.isArray(msg.content)) {
+          content = msg.content.map(item => {
+            if (item.type === 'text') return { type: 'text', text: item.text };
+            if (item.type === 'image' && item.source?.type === 'base64') {
+              return {
+                type: 'image_url',
+                image_url: {
+                  url: `data:${item.source.media_type};base64,${item.source.data}`
+                }
+              };
+            }
+            return null;
+          }).filter(Boolean);
+        }
+        openRouterMessages.push({ role: msg.role, content });
+      }
+
+      const openRouterRes = await fetch("https://openrouter.ai/api/v1/chat/completions", {
+        method: "POST",
+        headers: {
+          "Authorization": `Bearer ${openRouterApiKey}`,
+          "Content-Type": "application/json",
+          "HTTP-Referer": "https://shopbot-extension.com", // Required by OpenRouter
+          "X-Title": "ShopBot Extension"
+        },
+        body: JSON.stringify({
+          model: targetModel,
+          messages: openRouterMessages,
+          temperature: 0.7
+        })
+      });
+
+      if (!openRouterRes.ok) {
+        const err = await openRouterRes.json().catch(() => ({}));
+        return res.status(openRouterRes.status).json({
+          error: err?.error?.message || `OpenRouter API lá»—i ${openRouterRes.status}`
+        });
+      }
+
+      const data = await openRouterRes.json();
+      return res.json({ text: data.choices?.[0]?.message?.content || '' });
+    }
+
+    if (!geminiModels.has(targetModel)) {
+      return res.status(400).json({ error: `Model chÆ°a há»— trá»£: ${targetModel}` });
+    }
+
+    // --- Xá»¬ LÃ GEMINI (Máº¶C Äá»ŠNH) ---
     const apiKey = process.env.GEMINI_API_KEY;
     if (!apiKey) {
-      return res.status(500).json({ error: 'Server chưa cấu hình API key' });
+      return res.status(500).json({ error: 'Server chÆ°a cáº¥u hÃ¬nh GEMINI_API_KEY' });
     }
 
-    // Chuyển đổi format sang Gemini
+    // Chuyá»ƒn Ä‘á»•i format sang Gemini (Giá»¯ nguyÃªn logic cÅ© cá»§a báº¡n)
     const contents = [];
     const systemText = system || '';
 
@@ -93,9 +177,8 @@ app.post('/api/chat', authMiddleware, rateLimitMiddleware, async (req, res) => {
       if (parts.length > 0) contents.push({ role, parts });
     }
 
-    // Gọi Gemini
     const geminiRes = await fetch(
-      `https://generativelanguage.googleapis.com/v1beta/models/${geminiModel}:generateContent?key=${apiKey}`,
+      `https://generativelanguage.googleapis.com/v1beta/models/${targetModel}:generateContent?key=${apiKey}`,
       {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -112,7 +195,7 @@ app.post('/api/chat', authMiddleware, rateLimitMiddleware, async (req, res) => {
     if (!geminiRes.ok) {
       const err = await geminiRes.json().catch(() => ({}));
       return res.status(geminiRes.status).json({
-        error: err?.error?.message || `Gemini API lỗi ${geminiRes.status}`
+        error: err?.error?.message || `Gemini API lá»—i ${geminiRes.status}`
       });
     }
 
@@ -127,5 +210,5 @@ app.post('/api/chat', authMiddleware, rateLimitMiddleware, async (req, res) => {
 });
 
 app.listen(PORT, () => {
-  console.log(`✅ ShopBot proxy chạy tại http://localhost:${PORT}`);
+  console.log(`âœ… ShopBot proxy cháº¡y táº¡i http://localhost:${PORT}`);
 });

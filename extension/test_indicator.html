@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ShopBot Indicator Test</title>
+    <link rel="stylesheet" href="widget.css">
+    <style>
+        body {
+            background: #f0f0f0;
+            padding: 20px;
+            font-family: sans-serif;
+        }
+        #test-container {
+            width: 400px;
+            height: 500px;
+            background: white;
+            border-radius: 18px;
+            display: flex;
+            flex-direction: column;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            position: relative;
+            margin: 0 auto;
+        }
+        #sb-messages {
+            flex: 1;
+            overflow-y: auto;
+            padding: 15px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+        .controls {
+            padding: 20px;
+            text-align: center;
+        }
+        button {
+            padding: 10px 20px;
+            margin: 5px;
+            cursor: pointer;
+            border-radius: 8px;
+            border: 1px solid #ccc;
+            background: #fff;
+        }
+        button:hover {
+            background: #eee;
+        }
+        #shopbot-root {
+            /* Mock root for CSS variables */
+            --bg: #f8f8fc;
+            --bg2: #ffffff;
+            --bg3: #eeeef5;
+            --border: rgba(0, 0, 0, 0.08);
+            --border2: rgba(0, 0, 0, 0.15);
+            --text: #18181f;
+            --text2: #5a5a78;
+            --text3: #9898b8;
+            --accent: #7c6af7;
+            --accent2: #5b4fd4;
+            --green: #059669;
+            --red: #dc2626;
+            --yellow: #d97706;
+        }
+    </style>
+</head>
+<body id="shopbot-root" data-theme="bright">
+
+    <div class="controls">
+        <button onclick="testShowTyping()">1. Test Show Indicator</button>
+        <button onclick="testLongWait()">2. Test Long Wait (No Timeout)</button>
+        <button onclick="testResponse()">3. Test Response (Hide)</button>
+        <button onclick="location.reload()">Reset</button>
+    </div>
+
+    <div id="test-container">
+        <div id="sb-messages"></div>
+    </div>
+
+    <div id="test-results" style="margin-top: 20px; padding: 15px; background: #fff; border-radius: 8px; width: 400px; margin-left: auto; margin-right: auto;">
+        <strong>Test Results:</strong>
+        <ul id="results-list"></ul>
+    </div>
+
+    <script>
+        function esc(s) {
+            return (s || "").replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+        }
+
+        // Mock addUserMsg and addBotMsg from widget.js
+        function addUserMsg(text) {
+            const c = document.getElementById("sb-messages");
+            const d = document.createElement("div");
+            d.className = "sb-msg user";
+            const time = new Date().toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' });
+            d.innerHTML = `
+              <div class="sb-avatar usr">U</div>
+              <div class="sb-bubble-container">
+                <div class="sb-bubble">${esc(text)}</div>
+                <div class="sb-msg-time">${time}</div>
+              </div>
+            `;
+            c.appendChild(d);
+            c.scrollTop = c.scrollHeight;
+        }
+
+        function addBotMsg(html) {
+            const c = document.getElementById("sb-messages");
+            const d = document.createElement("div");
+            d.className = "sb-msg bot";
+            const time = new Date().toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' });
+            d.innerHTML = `
+              <div class="sb-avatar bot">S</div>
+              <div class="sb-bubble-container">
+                <div class="sb-bubble">${html}</div>
+                <div class="sb-msg-time">${time}</div>
+              </div>
+            `;
+            c.appendChild(d);
+            c.scrollTop = c.scrollHeight;
+        }
+
+        function showTyping() {
+            const c = document.getElementById("sb-messages");
+            const d = document.createElement("div");
+            d.className = "sb-msg bot thinking";
+            d.innerHTML = `
+              <div class="sb-avatar bot">S</div>
+              <div class="sb-bubble-container">
+                <div class="sb-bubble">
+                  <div class="sb-thinking-container">
+                    <div class="sb-thinking-text">AI đang suy nghĩ...</div>
+                    <div class="sb-typing">
+                      <div class="sb-dot"></div>
+                      <div class="sb-dot"></div>
+                      <div class="sb-dot"></div>
+                    </div>
+                    <div class="sb-thinking-progress">
+                      <div class="sb-thinking-progress-fill"></div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            `;
+            c.appendChild(d);
+            c.scrollTop = c.scrollHeight;
+
+            const startTime = Date.now();
+            const progressFill = d.querySelector(".sb-thinking-progress-fill");
+            const textEl = d.querySelector(".sb-thinking-text");
+            
+            const updateInterval = setInterval(() => {
+              if (!d.parentNode) {
+                clearInterval(updateInterval);
+                return;
+              }
+              
+              const elapsed = Date.now() - startTime;
+              
+              let progress = 0;
+              if (elapsed < 5000) {
+                progress = (elapsed / 5000) * 60;
+              } else if (elapsed < 15000) {
+                progress = 60 + ((elapsed - 5000) / 10000) * 30;
+              } else {
+                progress = 90 + Math.min(((elapsed - 15000) / 30000) * 9, 9);
+              }
+              
+              if (progressFill) progressFill.style.width = progress + "%";
+              
+              if (elapsed >= 5000 && textEl && textEl.textContent === "AI đang suy nghĩ...") {
+                textEl.textContent = "AI vẫn đang suy nghĩ, vui lòng đợi thêm...";
+                textEl.classList.add("highlight");
+                logResult("Text updated after 5s: OK");
+              }
+            }, 100);
+
+            d._cleanup = () => clearInterval(updateInterval);
+            d._complete = () => {
+              clearInterval(updateInterval);
+              if (progressFill) {
+                progressFill.style.transition = "width 0.3s ease-out";
+                progressFill.style.width = "100%";
+              }
+              if (textEl) {
+                textEl.textContent = "Đã có kết quả!";
+                textEl.classList.remove("highlight");
+                textEl.style.color = "var(--green)";
+              }
+            };
+            return d;
+        }
+
+        function logResult(msg) {
+            const li = document.createElement("li");
+            li.textContent = `[${new Date().toLocaleTimeString()}] ${msg}`;
+            document.getElementById("results-list").appendChild(li);
+        }
+
+        let currentTyping = null;
+
+        function testShowTyping() {
+            addUserMsg("Hello, how are you?");
+            const start = performance.now();
+            currentTyping = showTyping();
+            const end = performance.now();
+            logResult(`Indicator appeared in ${(end - start).toFixed(2)}ms`);
+        }
+
+        async function testLongWait() {
+            if (!currentTyping) testShowTyping();
+            logResult("Testing long wait (no timeout)...");
+            logResult("Indicator will stay visible until manually responded.");
+        }
+
+        function testResponse() {
+            if (!currentTyping) testShowTyping();
+            logResult("Simulating response...");
+            if (currentTyping._complete) currentTyping._complete();
+            setTimeout(() => {
+                currentTyping.remove();
+                addBotMsg("Đây là câu trả lời từ AI kèm timestamp.");
+                logResult("Indicator hidden and response shown: OK");
+                currentTyping = null;
+            }, 400);
+        }
+    </script>
+</body>
+</html>

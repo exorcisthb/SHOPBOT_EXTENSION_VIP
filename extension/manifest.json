@@ -1,15 +1,15 @@
 {
   "manifest_version": 3,
   "name": "ShopBot AI - So Sánh Sản Phẩm",
-  "version": "2.0.0",
+  "version": "3.0.0",
   "description": "AI hỗ trợ so sánh & tư vấn mua sắm thông minh trên Shopee, Lazada, Tiki",
   "permissions": ["activeTab", "scripting", "storage", "tabs"],
   "host_permissions": ["<all_urls>"],
   "action": {
     "default_icon": {
-      "16": "icons/icon16.png",
-      "48": "icons/icon48.png",
-      "128": "icons/icon128.png"
+      "16": "icons/sb_v4_16.png",
+      "48": "icons/sb_v4_48.png",
+      "128": "icons/sb_v4_128.png"
     },
     "default_title": "ShopBot AI - Chụp để so sánh sản phẩm"
   },
@@ -29,8 +29,8 @@
     }
   ],
   "icons": {
-    "16": "icons/icon16.png",
-    "48": "icons/icon48.png",
-    "128": "icons/icon128.png"
+    "16": "icons/sb_v4_16.png",
+    "48": "icons/sb_v4_48.png",
+    "128": "icons/sb_v4_128.png"
   }
 }
